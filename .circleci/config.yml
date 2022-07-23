@@ -51,7 +51,7 @@ jobs:
           paths: [backend/node_modules]
           key: backend-build
 
-test-frontend:
+test-fronten:
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -85,7 +85,7 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
-      - test-frontend:
+      - test-fronten:
           requires: [build-frontend]
       - test-backend:
           requires: [build-backend]
