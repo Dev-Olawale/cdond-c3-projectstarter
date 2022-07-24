@@ -14,7 +14,7 @@
 
   pre_tasks:
     - name: "wait 120 seconds for target connection to become reachable/usable."
-      wait_for_connection:
+      banner_timeout: 60
         timeout: 120
       # Your code here
 
