@@ -1,2 +1,2 @@
 [web]
-ec2-54-210-68-22.compute-1.amazonaws.com
+54.88.152.225
