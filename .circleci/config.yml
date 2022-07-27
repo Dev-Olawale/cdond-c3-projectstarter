@@ -149,42 +149,42 @@ jobs:
 
       # Here's where you will add some code to rollback on failure      
 
-  configure-infrastructure:
-    docker:
-     - image: python:3.7-alpine3.11
-     - image: cimg/base:stable
-    steps:
-      - checkout
-      - add_ssh_keys:
-         fingerprints: ["3f:81:61:3a:e8:b9:e9:d0:c9:92:5b:3d:01:82:4d:2d"] 
+  # configure-infrastructure:
+  #   docker:
+  #    - image: python:3.7-alpine3.11
+  #    - image: cimg/base:stable
+  #   steps:
+  #     - checkout
+  #     - add_ssh_keys:
+  #        fingerprints: ["3f:81:61:3a:e8:b9:e9:d0:c9:92:5b:3d:01:82:4d:2d"] 
 
-      - attach_workspace:
-          at: ~/
+  #     - attach_workspace:
+  #         at: ~/
 
-      - run:
-         name: Install dependencies
-         command: |
-            # apk add --update ansible
-            apk add --update curl nodejs npm ansible zip
-            pip install awscli
+  #     - run:
+  #        name: Install dependencies
+  #        command: |
+  #           # apk add --update ansible
+  #           apk add --update curl nodejs npm ansible zip
+  #           pip install awscli
 
-      - run:
-         name: Configure server
-         command: |
-          cd .circleci/ansible
-          cat inventory.txt
-          ansible-playbook -i inventory.txt configure-server.yml
+  #     - run:
+  #        name: Configure server
+  #        command: |
+  #         cd .circleci/ansible
+  #         cat inventory.txt
+  #         ansible-playbook -i inventory.txt configure-server.yml
 
-    install_ansible:
-    description: install ansible
-    steps:
-      - run:
-         name: Install ansible
-         command: |
-             sudo apt update
-             sudo apt install software-properties-common -y
-             sudo add-apt-repository --yes --update ppa:ansible/ansible
-             sudo apt install ansible -y
+  #   install_ansible:
+  #   description: install ansible
+  #   steps:
+  #     - run:
+  #        name: Install ansible
+  #        command: |
+  #            sudo apt update
+  #            sudo apt install software-properties-common -y
+  #            sudo add-apt-repository --yes --update ppa:ansible/ansible
+  #            sudo apt install ansible -y
           
 workflows:
   default:
@@ -201,10 +201,10 @@ workflows:
           requires: [build-backend]
       # - deploy-infrastructure:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          # filters:
-          #   branches:
-          #     only: [test-feature-branch]
-      - configure-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      #     filters:
+      #       branches:
+      #         only: [test-feature-branch]
+      # - configure-infrastructure:
+      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
     
     
