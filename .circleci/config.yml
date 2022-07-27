@@ -150,10 +150,10 @@ jobs:
       # Here's where you will add some code to rollback on failure    b  
 
   configure-infrastructure:
-    docker:
+  docker:
      - image: python:3.7-alpine3.11
      - image: cimg/base:stable
-     
+
     steps:
       - checkout
       - add_ssh_keys:
