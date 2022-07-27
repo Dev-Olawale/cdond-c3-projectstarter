@@ -147,12 +147,12 @@ jobs:
 
   #     - destroy_environment
 
-      # Here's where you will add some code to rollback on failure    b  
+      # Here is where you will add some code to rollback on failures  
 
   configure-infrastructure:
-  docker:
-     - image: python:3.7-alpine3.11
-     - image: cimg/base:stable
+    docker:
+      - image: python:3.7-alpine3.11
+      - image: cimg/base:stable
 
     steps:
       - checkout
@@ -209,4 +209,5 @@ workflows:
       - configure-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
     
+
     
