@@ -149,7 +149,7 @@ jobs:
 
       # Here is where you will add some code to rollback on failures  
 
-  configure-infrastructure:
+  deploy-infrastructure:
     docker:
       - image: python:3.7-alpine3.11
       - image: cimg/base:stable
