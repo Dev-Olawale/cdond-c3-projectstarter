@@ -189,7 +189,7 @@ jobs:
           ansible-playbook -i inventory.txt configure-server.yml
 
   run-migrations:
-    # Docker image here that supports NodeJS
+    # Docker image here that supports NodeJSa
     docker: 
      - image: circleci/node:13.8.0
     steps:
