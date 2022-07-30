@@ -330,7 +330,8 @@ jobs:
           command: |
             cd frontend
             npm run build
-            aws s3 cp dist s3://udapeople-8d6a7c8${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy_environment
       - undo_migrations
 
