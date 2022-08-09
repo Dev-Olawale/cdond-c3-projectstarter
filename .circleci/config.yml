@@ -252,13 +252,13 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      # - run:
-      #     name: Send migration results to memstash
-      #     command: |
-      #       cd backend
-      #       npm install
-      #       # Run and save the migration output
-      #       npm run migrations > migrations_dump.txt
+      - run:
+          name: Send migration results to memstash
+          command: |
+            cd backend
+            npm install
+            # Run and save the migration output
+            npm run migrations > migrations_dump.txt
 
 
       - run:
@@ -307,6 +307,9 @@ jobs:
       - image: cimg/base:stable
     steps:
       - checkout
+       - add_ssh_keys:
+          fingerprints:
+            - "3f:81:61:3a:e8:b9:e9:d0:c9:92:5b:3d:01:82:4d:2d"
       - install_awscli
       - install_nodejs
       - restore_cache:
@@ -329,17 +332,26 @@ jobs:
           name: Deploy frontend objects
           command: |
             cd frontend
+            sudo npm install -g npm@latest
+            rm -rf node_modules
+            npm install
             npm run build
-            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-2d8154b${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+
       - destroy_environment
       - undo_migrations
+
+
 
   # deploy-backend:
   #   docker:
   #     - image: python:3.7-alpine3.11
   #   steps:
   #     - checkout
+  #      - add_ssh_keys:
+  #         fingerprints:
+  #           - "3f:81:61:3a:e8:b9:e9:d0:c9:92:5b:3d:01:82:4d:2d"
+
   #     - attach_workspace:
   #         at: ~/
   #     - run:
@@ -358,8 +370,7 @@ jobs:
   #           zip -rq dist.zip *
   #           mkdir -p ~/project/.circleci/ansible/roles/deploy_backend/files/
   #           mv dist.zip ~/project/.circleci/ansible/roles/deploy_backend/files/
-  #     - add_ssh_keys:
-  #         fingerprints: [ "3f:81:61:3a:e8:b9:e9:d0:c9:92:5b:3d:01:82:4d:2d" ]
+
   #     - run:
   #         name: Setup EC2 instance & copy compiled backend to the EC2 instance
   #         command: |
@@ -367,9 +378,43 @@ jobs:
   #           cd ~/project/backend
   #           ansible-galaxy install weareinteractive.environment
   #           ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ~/project/.circleci/ansible/inventory.txt ~/project/.circleci/ansible/playbook.yml
-  #     # - destroy_environment:
-  #     #     workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
-  #     - undo_migrations
+      # - destroy_environment:
+      #     workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+      # - undo_migrations
+
+ deploy-backend:
+    docker:
+       - image: cimg/base:stable
+    steps:
+       - checkout
+       - add_ssh_keys:
+          fingerprints:
+            - "20:14:60:55:18:b2:75:b0:37:d4:93:8b:a5:a7:6c:ab"
+       - attach_workspace:
+           at: ~/
+       - install_ansible
+       - install_nodejs
+       - install_awscli
+       - run:
+           name: Deploy backend
+           command: |
+            export TYPEORM_MIGRATIONS_DIR=./migrations
+            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+            export TYPEORM_MIGRATIONS=./migrations/*.ts
+            cd backend
+            npm i
+            npm run build
+            cd ..
+            cd .circleci/ansible
+            mkdir files
+            cd files
+            tar -C ../../../backend -czvf artifact.tar.gz .
+            cd ../
+            echo "Contents of the inventory.txt file"
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+       - destroy_environment
+       - undo_migrations
 
     # docker:
     #   # Docker image here that supports AWS CLI
@@ -406,14 +451,16 @@ workflows:
           requires: [build-frontend]
       - scan-backend:
           requires: [build-backend]
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           # filters:
           #   branches:
           #     only: [test-feature-branch]
       - configure-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
       - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
           requires: [run-migrations]
