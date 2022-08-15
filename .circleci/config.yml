@@ -470,8 +470,8 @@ jobs:
             else
               return 1
             fi
-       - destroy_environment
-       - undo_migrations
+      - destroy_environment
+      - undo_migrations
 
 workflows:
   default:
